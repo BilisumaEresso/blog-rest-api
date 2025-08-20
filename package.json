@@ -1,0 +1,25 @@
+{
+  "name": "blog-rest-api",
+  "version": "1.0.0",
+  "description": "rest api blog",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "keywords": [
+    "rest",
+    "api",
+    "restful",
+    "blog"
+  ],
+  "author": "Bilisuma EResso",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "mongoose": "^8.17.1",
+    "morgan": "^1.10.1",
+    "nodemon": "^3.1.10"
+  }
+}
