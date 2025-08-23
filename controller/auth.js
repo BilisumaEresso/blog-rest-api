@@ -1,6 +1,7 @@
 const User=require("../models")
 const hashPassword=require("../utils/hashPassword")
 const comparePassword=require("../utils/comparePassword")
+const generateToken=require("../utils/generateToken")
 
 const signup=async(req,res, next)=>{
     try{
@@ -18,6 +19,7 @@ const signup=async(req,res, next)=>{
         const hashedPassword=await hashPassword(password)
         const user=new User({username,email,password:hashedPassword,role})
         await user.save()
+        
 
         res.status(201).json({
             code:201,
@@ -43,7 +45,8 @@ const signin=async(req,res,next)=>{
             res.code=401
             throw new Error("iconrrect password !!")
         }
-        res.status(200).json({code:200,status:true,message:"signed in successfully!!"})
+        const token = generateToken(user);
+        res.status(200).json({code:200,status:true,message:"signed in successfully!!",token})
 
     }catch(error){
         next(error)
