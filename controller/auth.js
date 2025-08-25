@@ -2,6 +2,8 @@ const User=require("../models")
 const hashPassword=require("../utils/hashPassword")
 const comparePassword=require("../utils/comparePassword")
 const generateToken=require("../utils/generateToken")
+const generateCode=require("../utils/generateCode")
+const sendEmail=require("../utils/sendEmail")
 
 const signup=async(req,res, next)=>{
     try{
@@ -52,4 +54,139 @@ const signin=async(req,res,next)=>{
         next(error)
     }
 }
-module.exports={signup,signin}
+
+const verifyCode=async(req,res,next)=>{
+    try{
+        const {email}=req.body
+        const user=await User.findOne({email})
+        if(!user){
+            res.code=404
+            throw Error("user not found")
+        }
+        if(user.isVerified){
+            res.code=400
+            throw Error("user already verified")
+        }
+        const code=generateCode(6)
+        user.verificationCode=code
+        // user.isVerified=true
+        await user.save()
+
+        // send email
+       await sendEmail(
+           {emailTo: user.email,
+            subject:"email verification",
+            code:user.verificationCode,
+            content:"verify your email"}
+        )
+
+        res.status(200).json({code:200,status:true,message:"email verification sent successfully"})
+        // verify user
+
+
+    }catch(error){
+        next(error)
+    }
+}
+
+const verifyUser=async(req,res,next)=>{
+    try{
+        const {email,code}=req.body
+        const user=await User.findOne({email})
+        if(!user){
+            res.code = 404;
+            throw new Error("user not found");
+        }
+        if(user.verificationCode!==code){
+            res.code=400
+            throw new Error("invalid verification code");
+            
+        }
+
+        user.isVerified=true
+        user.verificationCode=undefined
+        await user.save()
+        res.status(201).json({code:201,status:true,message:"user verified successfully"})
+    }catch(error){
+        next(error)
+    }
+}
+
+
+
+const forgotPassword=async(req,res,next)=>{
+    try{
+        const {email}=req.body
+        const user=await User.findOne({email})
+        if(!user){
+            res.code=404
+            throw new Error("user not found")
+        }
+        const code=generateCode(6)
+        user.forgotPasswordCode=code
+       await user.save()
+        await sendEmail({
+          emailTo: user.email,
+          subject: "password reset code",
+          code: user.forgotPasswordCode,
+          content: "reset your password",
+        });
+        res.status(200).json({code:200,status:true,message:"email sent successfully"})
+
+    }catch(error){
+        next(error)
+    }
+
+}
+
+const resetPassword =async (req, res, next) => {
+  try {
+    const {email,code,newPassword}=req.body
+    const user=await User.findOne({email})
+    if(!user){
+        res.code=404
+        throw new Error("user not found")
+    }
+    if(user.forgotPasswordCode!==code){
+        res.code=400
+        throw new Error("incorrect code")
+    }
+    const hashedNewPassword=await hashPassword(newPassword)
+    user.password=hashedNewPassword
+    user.forgotPasswordCode=null
+    await user.save()
+    res.status(200).json({code:200,status:true,message:"password reset successfully"})
+  } catch (error) {
+    next(error);
+  }
+};
+
+const changePassword=async(req,res,next)=>{
+    try{
+        const {oldPassword,newPassword}=req.body
+        const{_id}=req.user
+        const user=await User.findById({_id})
+        if(!user){
+            res.code=404
+            throw new Error("user not found")
+        
+        }
+        const match=comparePassword(oldPassword,user.password)
+        if(!match ){
+            res.code=400
+            throw new Error("old password doesnt match")
+        }
+        if(oldPassword===newPassword){
+            res.code=400
+            throw new Error("old and new passwords are the same")
+        }
+        const hashedNewPassword=await hashPassword(newPassword)
+        user.password=hashedNewPassword
+        await user.save()
+        res.status(200).json({code:200,status:true,Message:"password changed successfully"})
+    }catch(error){
+        next(error)
+    }
+}
+
+module.exports={signup,signin,verifyCode,verifyUser,forgotPassword,resetPassword,changePassword}
