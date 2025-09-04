@@ -1,4 +1,4 @@
-const User=require("../models")
+const {User}=require("../models")
 const hashPassword=require("../utils/hashPassword")
 const comparePassword=require("../utils/comparePassword")
 const generateToken=require("../utils/generateToken")
@@ -171,7 +171,7 @@ const changePassword=async(req,res,next)=>{
             throw new Error("user not found")
         
         }
-        const match=comparePassword(oldPassword,user.password)
+        const match= await comparePassword(oldPassword,user.password)
         if(!match ){
             res.code=400
             throw new Error("old password doesnt match")
@@ -189,4 +189,40 @@ const changePassword=async(req,res,next)=>{
     }
 }
 
-module.exports={signup,signin,verifyCode,verifyUser,forgotPassword,resetPassword,changePassword}
+const updateProfile=async(req,res,next)=>{
+    try{
+        const {_id}=req.user
+        const {username,email}=req.body
+        const user= await User.findById(_id).select("-password")
+        if(!user){
+            res.code=404
+            throw new
+           Error("user not found")
+        }
+        if(email){
+
+            const userExist= await User.findOne({email})
+            if(userExist&&userExist.email===email&&String(userExist._id)!==String(user._id)){
+                res.code=400
+                throw new Error("email already exists")
+            }
+        }
+        
+        user.username=username?username:user.username
+        user.email=email?email:user.email
+        if (email){
+            user.isVerified=false
+        }
+        await user.save()
+        res.status(200).json({
+            code:200,
+            status:true,
+            message:"profile updared successfully",
+            data:{user}
+        })
+    }catch(error){
+        next(error)
+    }
+}
+
+module.exports={signup,signin,verifyCode,verifyUser,forgotPassword,resetPassword,changePassword,updateProfile}

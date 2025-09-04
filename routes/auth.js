@@ -1,7 +1,7 @@
 const express=require("express")
 const router=express.Router()
 const {authController}=require("../controller")
-const {signupValidator, signinValidator, emailValidator,codeValidator, changePasswordvalidator}=require("../validators/auth")
+const {signupValidator, signinValidator, emailValidator,codeValidator, changePasswordvalidator, updateEmailValidator}=require("../validators/auth")
 const validate=require("../validators/validate")
 const isAuth=require("../middlewares/isAuth")
 
@@ -19,5 +19,6 @@ router.put(
   changePasswordvalidator,validate,isAuth,
   authController.changePassword
 );
+router.put("/update-profile",updateEmailValidator,isAuth,validate,authController.updateProfile)
 
 module.exports=router
