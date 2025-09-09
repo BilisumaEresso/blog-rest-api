@@ -1,3 +1,5 @@
 const User=require("./User")
 const Category= require("./Category")
-module.exports={User,Category}
+const File=require("./File")
+const Post=require("./Post")
+module.exports={User,Category,File,Post}

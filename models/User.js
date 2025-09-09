@@ -8,9 +8,10 @@ const userSchema = new mongoose.Schema(
     role:{type:Number,default:3},
     verificationCode:String,
     isVerified:{type :Boolean, default:false},
-    forgotPasswordCode:String
+    forgotPasswordCode:String,
+    profilePic:{type:mongoose.Types.ObjectId ,ref:"file"}
   },
   { timestamps: true }
 );
-const User=mongoose.model("User",userSchema)
+const User=mongoose.model("user",userSchema)
 module.exports=User;

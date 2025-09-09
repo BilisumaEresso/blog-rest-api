@@ -1,13 +1,20 @@
-const express=require("express")
-const multer=require("multer")
-const isAuth=require("../middlewares/isAuth")
-const {fileController}=require("../controller")
-const upload =require("../middlewares/upload")
+const express = require("express");
+const multer = require("multer");
+const isAuth = require("../middlewares/isAuth");
+const { fileController } = require("../controller");
+const upload = require("../middlewares/upload");
+const path = require("path");
 
-const router=express.Router()
+const router = express.Router();
 
+router.post(
+  "/upload",
+  isAuth,
+  upload.single("image"),
+  fileController.uploadFile,
+);
+router.get("/signed-url",isAuth,fileController.getFile)
 
+router.delete("/delete",isAuth,fileController.deleteFile)
 
-router.post("/upload",isAuth,upload.array("image",3),fileController.uploadFile)
-
-module.exports=router
+module.exports = router;

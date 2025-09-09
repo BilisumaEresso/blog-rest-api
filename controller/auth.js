@@ -1,9 +1,10 @@
-const {User}=require("../models")
+const {User,File}=require("../models")
 const hashPassword=require("../utils/hashPassword")
 const comparePassword=require("../utils/comparePassword")
 const generateToken=require("../utils/generateToken")
 const generateCode=require("../utils/generateCode")
 const sendEmail=require("../utils/sendEmail")
+const { findById } = require("../models/User")
 
 const signup=async(req,res, next)=>{
     try{
@@ -192,7 +193,7 @@ const changePassword=async(req,res,next)=>{
 const updateProfile=async(req,res,next)=>{
     try{
         const {_id}=req.user
-        const {username,email}=req.body
+        const {username,email,profilePic}=req.body
         const user= await User.findById(_id).select("-password")
         if(!user){
             res.code=404
@@ -207,9 +208,16 @@ const updateProfile=async(req,res,next)=>{
                 throw new Error("email already exists")
             }
         }
-        
+        if(profilePic){
+            const file= await File.findById(profilePic)
+            if(!file){
+                res.code=404
+                throw new Error("file not found")
+            }
+        }
         user.username=username?username:user.username
         user.email=email?email:user.email
+        user.profilePic=profilePic
         if (email){
             user.isVerified=false
         }
@@ -225,4 +233,23 @@ const updateProfile=async(req,res,next)=>{
     }
 }
 
-module.exports={signup,signin,verifyCode,verifyUser,forgotPassword,resetPassword,changePassword,updateProfile}
+const currentUser=async(req,res,next)=>{
+    try{
+        const {_id}=req.user
+        const user = await User.findById(_id).select("-password -isVerified -_id -verificationCode").populate("profilePic")
+        if(!user){
+            res.code=404
+            throw new Error("user not found")
+        
+        }
+        res.status(200).json({
+            code:200,
+            status:true,
+            data:user
+        })
+    }catch(error){
+        next(error)
+    }
+}
+
+module.exports={signup,signin,verifyCode,verifyUser,forgotPassword,resetPassword,changePassword,updateProfile,currentUser}

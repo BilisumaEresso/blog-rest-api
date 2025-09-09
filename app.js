@@ -7,7 +7,7 @@ const {errorHandler}=require("./middlewares")
 dotenv.config()
 const connectMngoDb=require("./init/mongoDb")
 connectMngoDb()
-const {authRoute,categoryRoute, fileRoute}=require("./routes")
+const {authRoute,categoryRoute, fileRoute, postRoute}=require("./routes")
 const notfound = require("./controller/notFound")
 
 // init app
@@ -21,6 +21,7 @@ app.use(bodyParser.urlencoded({limit:"500mb",extended:true}))
 app.use("/api/v1/auth",authRoute)
 app.use("/api/v1/category",categoryRoute)
 app.use("/api/v1/file",fileRoute)
+app.use("/api/v1/post",postRoute)
 
 // not found route
 app.use(notfound)
