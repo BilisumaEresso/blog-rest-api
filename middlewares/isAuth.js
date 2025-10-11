@@ -10,7 +10,7 @@ const isAuth=(req,res,next)=>{
               req.user = {
                 _id: payload.id,
                 email: payload.email,
-                username: payload.username,
+                name: payload.name,
                 role: payload.role,
               };
             } else {

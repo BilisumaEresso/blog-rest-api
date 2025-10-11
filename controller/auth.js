@@ -8,26 +8,26 @@ const { findById } = require("../models/User")
 
 const signup=async(req,res, next)=>{
     try{
-        const {username,email,password,role}=req.body
+        const {name,email,password,role}=req.body
         const emailExist=await User.findOne({email})
         if (emailExist){
            return res.status(400).json({
                 code:400,
                 status:false,
-                message:"email already exist try to sign in"
+                message:"email already exist!! try to sign in"
             })
         
         }
         
         const hashedPassword=await hashPassword(password)
-        const user=new User({username,email,password:hashedPassword,role})
+        const user=new User({name,email,password:hashedPassword,role})
         await user.save()
         
 
         res.status(201).json({
             code:201,
             status:true,
-            message:"user registerd successfully"})
+            message:"user registered successfully"})
     }catch(error){
         next(error)
         // res.status(400).json({error:err.message}
@@ -39,17 +39,24 @@ const signin=async(req,res,next)=>{
         const user = await  User.findOne({ email })
         if(!user){
             res.code=401
-            throw new Error("invalid credentials")
+            throw new Error("invalid credentials!!")
         }
         
 
         const isMatch=comparePassword(password,user.password)
         if (!isMatch){
             res.code=401
-            throw new Error("iconrrect password !!")
+            throw new Error("incorrect password !!")
         }
         const token = generateToken(user);
-        res.status(200).json({code:200,status:true,message:"signed in successfully!!",token})
+        res
+          .status(200)
+          .json({
+            code: 200,
+            status: true,
+            message: "signed in successfully!!",
+            data: { token, user }
+          });
 
     }catch(error){
         next(error)
@@ -193,7 +200,7 @@ const changePassword=async(req,res,next)=>{
 const updateProfile=async(req,res,next)=>{
     try{
         const {_id}=req.user
-        const {username,email,profilePic}=req.body
+        const {name,email,profilePic}=req.body
         const user= await User.findById(_id).select("-password")
         if(!user){
             res.code=404
@@ -215,7 +222,7 @@ const updateProfile=async(req,res,next)=>{
                 throw new Error("file not found")
             }
         }
-        user.username=username?username:user.username
+        user.name=name?name:user.name
         user.email=email?email:user.email
         user.profilePic=profilePic
         if (email){
