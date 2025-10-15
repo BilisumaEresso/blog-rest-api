@@ -27,7 +27,10 @@ const addPost = async (req, res, next) => {
     const populatedPost = await savedPost.populate([
       { path: "category" },
       { path: "file" },
-      { path: "updatedBy" },
+      {
+        path: "updatedBy",
+        select: "-password -verificationCode -forgotPasswordCode",
+      },
     ]);
     res.status(201).json({
       code: 201,
@@ -114,7 +117,10 @@ const detailPost = async (req, res, next) => {
     const post = await Post.findById(postId).populate([
       { path: "file" },
       { path: "category" },
-      { path: "updatedBy" },
+      {
+        path: "updatedBy",
+        select: "-password -verificationCode -forgotPasswordCode",
+      },
     ]);
     if (!post) {
       res.code = 404;
@@ -124,7 +130,7 @@ const detailPost = async (req, res, next) => {
       code: 200,
       status: true,
       message: "got post successfully ",
-      data: post,
+      data: {post:post},
     });
   } catch (error) {
     next(error);
@@ -133,34 +139,46 @@ const detailPost = async (req, res, next) => {
 const getPosts = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
+    const size = parseInt(req.query.size) || 10;
+    const skip = (page - 1) * size;
     const category = req.query.category;
+    const q = req.query.q;
 
     // Build filter object
     const filter = {};
     if (category) {
       filter.category = category;
     }
+    if (q) {
+      const search = new RegExp(q, "i");
+      filter.$or = [{ title: search }, { desc: search }];
+    }
 
     const total = await Post.countDocuments(filter);
 
     const posts = await Post.find(filter)
       .skip(skip)
-      .limit(limit)
-      .populate([{ path: "file" }, { path: "category" }, { path: "updatedBy" }])
+      .limit(size)
+      .populate([
+        { path: "file" },
+        { path: "category" },
+        {
+          path: "updatedBy",
+          select: "-password -verificationCode -forgotPasswordCode",
+        },
+      ])
       .sort({ createdAt: -1 });
 
     res.status(200).json({
       code: 200,
       status: true,
       message: "posts fetched successfully",
-      data: posts,
-      pagination: {
+      data: {
+        posts,
         total,
         page,
-        limit,
-        pages: Math.ceil(total / limit),
+        size,
+        pages: Math.ceil(total / size),
       },
     });
   } catch (error) {

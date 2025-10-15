@@ -1,7 +1,0 @@
-###
-@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YWMwZmZlZjE0MGVmMWQ1ZTllOWY5NCIsImVtYWlsIjoiYmlsaXN1bWFlcmVzc28yQGdtYWlsLmNvbSIsInJvbGUiOjIsImlhdCI6MTc1Njk4Mzc1NywiZXhwIjoxNzU3NTg4NTU3fQ.sFkGE4gGD-egNJ7suFKxYWcx8Ynm1V7-z-A2DBED6FU
-
-POST http://localhost:8000/api/v1/file/upload
-Authorization: Bearer {{token}}
-
-file=@C:/Users/Bokkuu Tech/Desktop/blog-rest-api/uploads/screenshot_2024-12-25_142150_995691041966.png

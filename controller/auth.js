@@ -43,7 +43,7 @@ const signin=async(req,res,next)=>{
         }
         
 
-        const isMatch=comparePassword(password,user.password)
+        const isMatch=await comparePassword(password,user.password)
         if (!isMatch){
             res.code=401
             throw new Error("incorrect password !!")
@@ -139,7 +139,7 @@ const forgotPassword=async(req,res,next)=>{
           code: user.forgotPasswordCode,
           content: "reset your password",
         });
-        res.status(200).json({code:200,status:true,message:"email sent successfully"})
+        res.status(200).json({code:200,status:true,message:"forgot password code sent successfully"})
 
     }catch(error){
         next(error)
@@ -191,7 +191,7 @@ const changePassword=async(req,res,next)=>{
         const hashedNewPassword=await hashPassword(newPassword)
         user.password=hashedNewPassword
         await user.save()
-        res.status(200).json({code:200,status:true,Message:"password changed successfully"})
+        res.status(200).json({code:200,status:true,message:"password changed successfully"})
     }catch(error){
         next(error)
     }
@@ -232,7 +232,7 @@ const updateProfile=async(req,res,next)=>{
         res.status(200).json({
             code:200,
             status:true,
-            message:"profile updared successfully",
+            message:"profile updated successfully",
             data:{user}
         })
     }catch(error){

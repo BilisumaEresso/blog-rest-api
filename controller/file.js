@@ -34,7 +34,14 @@ const uploadFile=async(req,res,next)=>{
          })
          await newFile.save()
 
-          res.json(newFile);
+          res.status(201).json({
+            code:201,
+            status:true,
+            message:"File uploaded successfully",
+            data:{public_id: newFile.public_id,
+              _id:newFile._id
+            }
+          });
         
     }catch(error){
         next(error)
