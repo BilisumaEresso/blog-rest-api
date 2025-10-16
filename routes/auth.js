@@ -4,6 +4,7 @@ const {authController}=require("../controller")
 const {signupValidator, signinValidator, emailValidator,codeValidator, changePasswordvalidator, updateEmailValidator}=require("../validators/auth")
 const validate=require("../validators/validate")
 const isAuth=require("../middlewares/isAuth")
+const isSuperAdmin = require("../middlewares/isSuperAdmin")
 
 // const { signup } = require("../controller")
 // register route
@@ -21,6 +22,9 @@ router.put(
 );
 router.put("/update-profile",updateEmailValidator,isAuth,validate,authController.updateProfile)
 router.get("/current-user",isAuth,authController.currentUser)
+router.get("/manage-admin",isAuth,isSuperAdmin,authController.searchUser)
+router.put("/manage-admin/add/:id",isAuth,isSuperAdmin,authController.addAdmin)
+router.put("/manage-admin/remove/:id", isAuth, isSuperAdmin,authController.removeAdmin);
 
 
 module.exports=router

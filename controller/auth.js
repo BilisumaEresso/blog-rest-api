@@ -4,7 +4,7 @@ const comparePassword=require("../utils/comparePassword")
 const generateToken=require("../utils/generateToken")
 const generateCode=require("../utils/generateCode")
 const sendEmail=require("../utils/sendEmail")
-const { findById } = require("../models/User")
+const { findById, removeListener } = require("../models/User")
 
 const signup=async(req,res, next)=>{
     try{
@@ -259,4 +259,86 @@ const currentUser=async(req,res,next)=>{
     }
 }
 
-module.exports={signup,signin,verifyCode,verifyUser,forgotPassword,resetPassword,changePassword,updateProfile,currentUser}
+const addAdmin=async(req,res,next)=>{
+    try{
+        const {id}=req.params
+        const user=await User.findById(id)
+        console.log(user)
+        if(user.role===1||user.role===2){
+            res.code=400
+            throw new Error("user is already an admin")
+        }
+        if (!user) {
+          res.code = 400;
+          throw new Error("user not found");
+        }
+        user.role=2
+        await user.save()
+        res.status(200).json({
+            code:200,
+            status:true,
+            message:`You added ${user.name} as an admin`
+        })
+        console.log(user)
+
+    }catch(error){
+        next(error)
+    }
+}
+
+const removeAdmin=async(req,res,next)=>{
+    try {
+      const { id } = req.params;
+      const user = await User.findById(id);
+      console.log(user)
+      if (!user) {
+        res.code = 400;
+        throw new Error("user not found");
+      }
+      if (user.role === 3) {
+        res.code = 400;
+        throw new Error("user is not an admin");
+      }
+      user.role = 1;
+      await user.save();
+      res.status(200).json({
+        code: 200,
+        status: true,
+        message: `You removed ${user.name} from admin`,
+      });
+      console.log(user);
+    } catch (error) {
+      next(error);
+    }
+}
+
+const searchUser=async(req,res,next)=>{
+    try{
+         const { q, page, limit, size } = req.query;
+          const limitNumber = parseInt(size) || parseInt(limit) || 10;
+          const pageNumber = parseInt(page) || 1;
+
+          let query = {};
+          if (q) {
+            const search = RegExp(q, "i");
+            query = { $or: [{ name: search }, { email: search }] };
+          }
+          const total = await User.countDocuments(query);
+          const pages = Math.ceil(total / limitNumber);
+
+          const user = await User.find(query)
+            .skip((pageNumber - 1) * limitNumber)
+            .limit(limitNumber);
+
+        res.json({
+          code: 200,
+          message: "got user list successfully",
+          data: { total, pages, user },
+        });
+
+    }catch(error){
+
+    }
+}
+
+module.exports={signup,signin,verifyCode,verifyUser,forgotPassword,resetPassword,changePassword,updateProfile,currentUser,addAdmin,removeAdmin,searchUser}
