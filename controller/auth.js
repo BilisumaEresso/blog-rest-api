@@ -23,11 +23,13 @@ const signup=async(req,res, next)=>{
         const user=new User({name,email,password:hashedPassword,role})
         await user.save()
         
-
+        const token = generateToken(user);
         res.status(201).json({
-            code:201,
-            status:true,
-            message:"user registered successfully"})
+          code: 201,
+          status: true,
+          message: "user registered successfully",
+          data: { token, user },
+        });
     }catch(error){
         next(error)
         // res.status(400).json({error:err.message}
