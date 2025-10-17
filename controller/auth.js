@@ -301,7 +301,7 @@ const removeAdmin=async(req,res,next)=>{
         res.code = 400;
         throw new Error("user is not an admin");
       }
-      user.role = 1;
+      user.role = 3;
       await user.save();
       res.status(200).json({
         code: 200,
