@@ -1,3 +1,4 @@
+const { removeListener } = require("../app");
 const cloudinary = require("../config/cloudinary");
 const { errorHandler } = require("../middlewares");
 const { Post, User, Category, File } = require("../models");
@@ -94,9 +95,11 @@ const deletePost = async (req, res, next) => {
       res.code = 404;
       throw new Error("post is not found");
     }
-    if (String(post.updatedBy) !== String(_id)) {
-      res.code = 400;
-      throw new Error("unauthorized");
+    if (req.user.user !== 1) {
+      if (String(post.updatedBy) !== String(_id)) {
+        res.code = 400;
+        throw new Error("unauthorized");
+      }
     }
     if (post.file) {
       await cloudinary.uploader.destroy(post.file, { invalidate: true });

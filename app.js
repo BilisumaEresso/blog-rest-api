@@ -17,11 +17,13 @@ const app=express()
 app.use(express.json({limit:"500mb"}))
 app.use(
   cors({
-    origin: ["https://react-blog-app-blue.vercel.app"], // your deployed frontend
+    origin: [
+      "https://bilisa-blog.vercel.app",
+    ], // your deployed frontend
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true, // if using cookies or tokens
   })
-)
+);
 
 app.use(bodyParser.urlencoded({limit:"500mb",extended:true}))
 // app.use(morgan("dev"));
