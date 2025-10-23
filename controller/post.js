@@ -95,7 +95,7 @@ const deletePost = async (req, res, next) => {
       res.code = 404;
       throw new Error("post is not found");
     }
-    if (req.user.user !== 1) {
+    if (req.user.role !== 1) {
       if (String(post.updatedBy) !== String(_id)) {
         res.code = 400;
         throw new Error("unauthorized");
