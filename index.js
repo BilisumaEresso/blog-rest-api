@@ -8,7 +8,7 @@ const PORT=port||5000
 const server=http.createServer(app)
 
 
-// listenning to server
+// listening to server
 server.listen(port,()=>{
     console.log(`running on server port ${PORT}`)
 })

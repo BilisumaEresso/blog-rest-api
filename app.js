@@ -6,8 +6,8 @@ const {errorHandler}=require("./middlewares")
 const cors= require("cors")
 
 dotenv.config()
-const connectMngoDb=require("./init/mongoDb")
-connectMngoDb()
+const connectMongoDb=require("./init/mongoDb")
+connectMongoDb()
 const {authRoute,categoryRoute, fileRoute, postRoute}=require("./routes")
 const notfound = require("./controller/notFound")
 
@@ -17,10 +17,12 @@ const app=express()
 app.use(express.json({limit:"500mb"}))
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
-    credentials: true,
+    origin: ["https://react-blog-app-blue.vercel.app"], // your deployed frontend
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true, // if using cookies or tokens
   })
-);
+)
+
 app.use(bodyParser.urlencoded({limit:"500mb",extended:true}))
 // app.use(morgan("dev"));
 
