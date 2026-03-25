@@ -18,7 +18,7 @@ app.use(express.json({limit:"500mb"}))
 app.use(
   cors({
     origin: [
-      "https://bilisa-blog.vercel.app",
+      "https://bilisa-blog.vercel.app","http://localhost:5173"
     ], // your deployed frontend
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true, // if using cookies or tokens
