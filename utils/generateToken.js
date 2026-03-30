@@ -6,8 +6,9 @@ const generateToken = (user) => {
     return jwt.sign(
         { id: user._id, email: user.email, role: user.role },
         jwt_secret,
-        { expiresIn: "7d" ,
-            algorithm:"HS256"
+        {
+            algorithm: "HS256"
+            // No expiresIn field means the token never expires
         }
     );
 };
